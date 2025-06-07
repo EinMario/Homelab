@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=TOKEN
+    network_mode: host  # notwendig für Nextcloud Talk/STUN
+
+  nextcloud-aio-mastercontainer:
+    image: ghcr.io/nextcloud-releases/all-in-one:latest
+    init: true
+    restart: always
+    container_name: nextcloud-aio-mastercontainer
+    network_mode: bridge
+    ports:
+      - 8080:8080
+      - 3478:3478/udp  # für Nextcloud Talk
+    volumes:
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      NEXTCLOUD_DATADIR: /nextcloud/ncdata
+      AIO_COMMUNITY_CONTAINERS: "local-ai memories"
+      NEXTCLOUD_UPLOAD_LIMIT: 1028G
+      NEXTCLOUD_MAX_TIME: 7200
+      NEXTCLOUD_MEMORY_LIMIT: 2048M
+      TALK_PORT: 3478
+      SKIP_DOMAIN_VALIDATION: true  # wichtig bei Cloudflare Tunnel
+      APACHE_PORT: 11000  # wird vom AIO Container intern genutzt
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
