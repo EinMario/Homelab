@@ -19,19 +19,20 @@ services:
     network_mode: bridge
     ports:
       - 8080:8080
-      - 3478:3478/udp  # für Nextcloud Talk
+#      - 3478:3478/udp  # für Nextcloud Talk
     volumes:
       - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      NEXTCLOUD_DATADIR: /nextcloud/ncdata
+      NEXTCLOUD_DATADIR: /nextcloud/ncdata # change path here
       AIO_COMMUNITY_CONTAINERS: "local-ai memories"
       NEXTCLOUD_UPLOAD_LIMIT: 1028G
       NEXTCLOUD_MAX_TIME: 7200
-      NEXTCLOUD_MEMORY_LIMIT: 2048M
-      TALK_PORT: 3478
+      NEXTCLOUD_MEMORY_LIMIT: 4096M
+#      TALK_PORT: 3478
       SKIP_DOMAIN_VALIDATION: true  # wichtig bei Cloudflare Tunnel
       APACHE_PORT: 11000  # wird vom AIO Container intern genutzt
+      FULLTEXTSEARCH_JAVA_OPTIONS: "-Xms1024M -Xmx2048M"
 
 volumes:
   nextcloud_aio_mastercontainer:
